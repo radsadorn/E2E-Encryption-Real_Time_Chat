@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChildren, ViewChild, AfterViewInit, QueryList, ElementRef, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, startWith, Subscription } from 'rxjs';
-import { ChatService } from 'src/app/services/chat.service';
-import { DocumentService } from 'src/app/services/document.service';
+import { ChatService } from '../../services/chat.service';
+import { DocumentService } from '../../services/document.service';
 
 import { Document } from '../../models/document.model';
 
@@ -19,7 +19,10 @@ export class ChatComponent implements OnInit, OnDestroy {
   private _fileSub!: Subscription;
   private _docSub!: Subscription;
 
-  constructor(private documentService: DocumentService) { }
+  constructor(
+    private documentService: DocumentService,
+    private chatService: ChatService,
+  ) { }
 
   ngOnInit() {
     this.documents = this.documentService.documents;

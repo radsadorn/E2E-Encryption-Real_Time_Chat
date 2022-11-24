@@ -7,12 +7,12 @@ import { Observable } from 'rxjs';
 @Injectable({
 	providedIn: 'root'
 })
-export class UserService {
+export class AuthService {
 
     private apiUrl = environment.SERVER_URL;
 
 	constructor(
-        private http: HttpClient
+        private http: HttpClient,
     ) { }
 
     createNewUser(user: User): Observable<any> {

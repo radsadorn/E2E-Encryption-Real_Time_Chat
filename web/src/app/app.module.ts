@@ -1,16 +1,17 @@
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ChatComponent } from './component/chat/chat.component';
+import { ChatComponent } from './component/Document/chat.component';
 import { HomeComponent } from './component/home/home.component';
-import { ChatService } from './services/chat.service';
-import { CryptoService } from './services/crypto.service';
-import { UserService } from './services/user.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
+import { SharedModule } from './modules/shared/shared.module';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ChatDialogComponent } from './component/dialog/dialog.component';
 
 const config: SocketIoConfig = { 
   url: environment.SERVER_URL, 
@@ -24,20 +25,19 @@ const config: SocketIoConfig = {
     AppComponent,
     HomeComponent,
     ChatComponent,
+    ChatDialogComponent,
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
     NgbModule,
-    SocketIoModule.forRoot(config)
+    SocketIoModule.forRoot(config),
+    BrowserAnimationsModule,
+    SharedModule,
+    MatDialogModule,
   ],
-  providers: [
-    ChatService,
-    CryptoService,
-    UserService,
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

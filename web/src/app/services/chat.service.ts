@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Subject, BehaviorSubject} from 'rxjs';
+import { Subject, BehaviorSubject, Observable} from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Room, User, Event, Action} from '../models';
@@ -8,12 +8,16 @@ import { CryptoService } from './crypto.service';
 import { WebSocketService } from './webSocket.service';
 
 import { Socket } from 'ngx-socket-io';
-import { UserService } from './user.service';
+import { AuthService } from './auth.service';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatService {
+
+    private apiUrl = environment.SERVER_URL;
+
     messages = this.socket.fromEvent<any[]>('messages');
     newMessage = this.socket.fromEvent<any>('message')
 
@@ -24,8 +28,14 @@ export class ChatService {
 
     constructor(
       private socket: Socket,
-      // private userService: UserService
+      private authService: AuthService,
+      private http: HttpClient,
     ) {}
+
+    authorizationHeaders(): HttpHeaders {
+      return new HttpHeaders()
+          .set('Authorization', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhZHNhZG9ybiIsInB1YmxpY0tleUJhc2U2NCI6ImhoZ2hmZ2hoIiwicHJpdmF0ZUtleUJhc2U2NCI6IkhKS0xKamtzbGtzIiwiaWF0IjoxNjY5Mjc4MjA3LCJleHAiOjE2NjkzMjE0MDd9.h0PFdyleIb_46NjNoyzkZ9N7ptOEfXXs7MfMY1qkCdVQzGG-B143WdO60O-Igtkr8mhcZjwhfUNfeXApJw3wew');
+    }
 
     sendMessage(user: User) {
       this.socket.emit('sendMessage', user);
@@ -34,6 +44,51 @@ export class ChatService {
 
     getMessage() {
       return this.socket.fromEvent('message').pipe(map((data: any) => data.msg));
+    }
+
+    getMyChat(): any {
+      const headers = this.authorizationHeaders();
+      return this.http.get<any>(this.apiUrl + 'chat', { headers: headers } ).pipe(
+        map(r => r.result )
+      );
+    }
+
+    createNewChat(name: string, password: string): any {
+        const headers = this.authorizationHeaders();
+        return this.http.post<any>(this.apiUrl + 'chat/create', { name, password }, { headers: headers } ).pipe(
+          map(r => r.result )
+        );
+    }
+
+    joinNewChat(name: string, password: string): any {
+      const headers = this.authorizationHeaders();
+      return this.http.put<any>(this.apiUrl + 'chat/join', { name, password }, { headers: headers } ).pipe(
+        map(r => r.result )
+      );
+    }
+
+    leaveChat(name: string): any {
+      const headers = this.authorizationHeaders();
+      return this.http.put<any>(this.apiUrl + 'chat/leave', { name }, { headers: headers } ).pipe(
+        map(r => r.result )
+      );
+    }
+
+    sendNewMessage(newMessage: any): any {
+      const headers = this.authorizationHeaders();
+        return this.http.post<any>(this.apiUrl + 'chat/message', newMessage, { headers: headers } ).pipe(
+          map(r => r.result )
+        );
+    }
+
+    getChatMessage(name: string): any {
+      const params = new HttpParams()
+        .set('chatName', name);
+
+      const headers = this.authorizationHeaders();
+      return this.http.get<any>(this.apiUrl + 'chat/message', { headers: headers, params: params } ).pipe(
+        map(r => r.result )
+      );
     }
 
     // constructor(private wsService: WebSocketService,

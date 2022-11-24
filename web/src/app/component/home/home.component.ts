@@ -4,8 +4,11 @@ import { User, Event, Room } from '../../models';
 import { Router } from '@angular/router';
 import { ChatService } from 'src/app/services/chat.service';
 
-import { UserService } from 'src/app/services/user.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { Observable, Subscription } from 'rxjs';
+import { ChatDialogComponent } from '../dialog/dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogService } from 'src/app/services/dialog.service';
 
 @Component({
     selector: 'app-home',
@@ -18,22 +21,33 @@ export class HomeComponent implements OnInit {
 
     user!: User
 
-    chatRoom: string[] = [
-        'test',
-        '1234',
-        '5678',
-        'sdfh',
+    chatRoom: any[] = [
+        // { name: 'Radadorn', memberCount: 1 },
+        // { name: 'CE 58 (4D)', memberCount: 2 },
+        // { name: 'NEW CHAT', memberCount: 3 },
+        // { name: 'CHAT TEST', memberCount: 4 },
+        // { name: 'Radadorn', memberCount: 1 },
+        // { name: 'CE 58 (4D)', memberCount: 2 },
+        // { name: 'NEW CHAT', memberCount: 3 },
+        // { name: 'CHAT TEST', memberCount: 4 },
+        // { name: 'Radadorn', memberCount: 1 },
+        // { name: 'CE 58 (4D)', memberCount: 2 },
+        // { name: 'NEW CHAT', memberCount: 3 },
+        // { name: 'CHAT TEST', memberCount: 4 },
     ];
 
 
     constructor(
+        private router: Router,
+        private authService: AuthService,
         private chatService: ChatService,
         private cryptoService: CryptoService,
-        private router: Router,
+        private dialogService: DialogService,
     ) {}
 
     ngOnInit(): void {
-        
+        console.log('Start');
+        this.loadMyChat();
     }
 
     loadUserData(): void {
@@ -47,12 +61,51 @@ export class HomeComponent implements OnInit {
         this.user = new User('Radsadorn', 1, publicKey, base64PublicKey, base64PrivateKey);
     }
 
-    createNewUser(): void {
-        this.loadUserData();
-        this.chatService.sendMessage(this.user);
-        const result = this.chatService.getMessage();
+    // createNewUser(): void {
+    //     this.loadUserData();
+    //     this.chatService.sendMessage(this.user);
+    //     const result = this.chatService.getMessage();
+    // }
+
+    chatSelected(chatName: string): void {
+        console.log(chatName);
     }
 
-    
+    loadMyChat(): void {
+        console.log('Test');
+        this.chatService.getMyChat().subscribe({
+            next: (res: any) => {
+                console.log(res.myChatList);
+                this.chatRoom = res.myChatList;
+            },
+            error: (error: any) => {
+                console.log(error);
+            }
+        });
+    }
+
+    createNewChat(): void {
+        this.dialogService
+            .createNewChat('CREATED')
+            .subscribe({
+                next: (res: any) => {
+                    if (res) {
+
+                    }
+                }
+            });
+    }
+
+    joinNewChat(): void {
+        this.dialogService
+            .createNewChat('JOINED')
+            .subscribe({
+                next: (res: any) => {
+                    if (res) {
+
+                    }
+                }
+            });
+    }
 
 }
