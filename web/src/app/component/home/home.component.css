@@ -1,0 +1,79 @@
+body {
+    color: #616876
+}
+
+:host {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.body {
+    width: 100%;
+    height: 100%;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    width: 30vw;
+    display: flex;
+    align-items: center;
+    background-color: #138086;
+    color: white;
+    font-weight: 600;
+}
+
+.toolbar span {
+    font-size: 16px;
+}
+
+.toolbar .container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    max-width: 1200px;
+}
+
+button {
+    margin-bottom: 10px;
+}
+
+.content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 70vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* background-color: #173f5f; */
+}
+
+.chat-list-box {
+    width: 100%;
+    height: 100%;
+}
+
+.chat-list-box span {
+    font-size: 20px;
+}
+
+.chat-list {
+    height: 70vh;
+}
