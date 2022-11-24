@@ -4,7 +4,7 @@ import { AuthorizationService } from './auth.service';
 
 export class AuthorizationController {
 
-    private readonly LOG_NAME = 'AuthorizationController > ';
+    private readonly LOG_NAME = 'AuthorizationController\t\t> ';
 
     constructor (
         private authService: AuthorizationService = new AuthorizationService(),

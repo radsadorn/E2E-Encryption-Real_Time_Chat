@@ -1,14 +1,15 @@
 import { compare, hash } from "bcrypt";
-import { Chat, ChatData, ChatResponse, Member, NewChat } from "./chat.interface";
+import { Chat, ChatData, ChatResponse, Member, Message, NewChat, NewMessage } from "./chat.interface";
 
 const saltOrRounds = 10;
 const chatMemberLimit = 4;
 
 export class ChatService {
 
-    private readonly LOG_NAME = 'ChatService > ';
+    private readonly LOG_NAME = 'ChatService\t\t> ';
 
     chats: { [key: string]: ChatData } = {};
+    messages: { [key: string]: Message[] } = {};
 
     constructor () {}
 
@@ -108,14 +109,39 @@ export class ChatService {
         }
     }
 
-    public async newMessage(message: any): Promise<void> {
+    public async getMessageByChatName(user: Member, chatName: string): Promise<Message[]> {
+        try {
+            console.log(this.LOG_NAME + JSON.stringify(chatName));
+
+            const allMessage = this.messages[chatName];
+            const myMessages = allMessage.filter(m => m.to === user.username);
+
+            console.log(myMessages);
+            return myMessages;
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    public async newMessage(user: Member, message: NewMessage): Promise<void> {
         try {
             console.log(this.LOG_NAME + JSON.stringify(message));
 
-            // sender
-            // receiver
-            // chat room
-            // content
+            const from = user.username;
+            const { chatName, to, content, type } = message;
+            const newMessage: Message = { from, to, content, type };
+
+            console.log(newMessage);
+
+            // First message
+            const result = this.messages[chatName];
+            if (!result) this.messages[chatName] = [];
+
+            // Add new message
+            this.messages[chatName].push(newMessage);
+
+            console.log(this.messages[chatName]);
+
         } catch(error: any) {
             throw error;
         }

@@ -7,7 +7,7 @@ const saltRounds = 10;
 
 export class AuthorizationService {
 
-    private readonly LOG_NAME = 'AuthorizationService > ';
+    private readonly LOG_NAME = 'AuthorizationService\t\t> ';
 
     users: { [key: string]: NewUser } = {};
 

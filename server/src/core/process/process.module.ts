@@ -3,7 +3,15 @@ import httpContext from "express-http-context";
 
 export const doRequest = (callback: (req: Request, res: Response) => Promise<void>) => {
     return async (req: Request, res: Response, next: NextFunction) => {
-        console.log('Start ' + httpContext.get('fullPath') + ' header: ' + JSON.stringify(req.headers));
+
+        for(let i = 0; i < 2; i++) {
+            let line = '';
+            for(let k = 0; k < 50; k++) {
+                line += '=';
+            }
+            console.log(line);
+        }
+        console.log('\nStart ' + httpContext.get('path') + ' header: ' + JSON.stringify(req.headers) + '\n');
         try {
             await callback(req, res);
             next();

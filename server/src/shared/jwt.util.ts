@@ -5,7 +5,7 @@ export const generateToken = (userData: UserResponse) => {
 
     const signInOptions: SignOptions = {
         algorithm: "HS512",
-        expiresIn: '1h'
+        expiresIn: '12h'
       };
 
     console.log(process.env.SECRET_KEY);
