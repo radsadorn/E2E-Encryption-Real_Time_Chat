@@ -9,5 +9,7 @@ appRouter.get('/hello', (req, res) => {
     res.send('Hello chat!!!');
 });
 
-appRouter.post('/', doRequest((req, res) => chatController.createChat(req, res)));
-appRouter.put('/', doRequest((req, res) => chatController.joinChat(req, res)));
+appRouter.get('', doRequest((req, res) => chatController.getAllChat(req, res)));
+appRouter.post('/create', doRequest((req, res) => chatController.createChat(req, res)));
+appRouter.put('/join', doRequest((req, res) => chatController.joinChat(req, res)));
+appRouter.put('/leave', doRequest((req, res) => chatController.leaveChat(req, res)));

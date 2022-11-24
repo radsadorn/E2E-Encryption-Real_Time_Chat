@@ -18,3 +18,8 @@ export interface Member {
     username: string;
     publicKeyBase64: string;
 }
+
+export interface Chat {
+    name: string;
+    memberCount: number;
+}

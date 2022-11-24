@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { ChatData, ChatResponse, Member, NewChat } from "./chat.interface";
+import { Chat, ChatData, ChatResponse, Member, NewChat } from "./chat.interface";
 
 const saltOrRounds = 10;
 const chatMemberLimit = 4;
@@ -11,6 +11,22 @@ export class ChatService {
     chats: { [key: string]: ChatData } = {};
 
     constructor () {}
+
+    public async getAllChat(user: Member ): Promise<Chat[]> {
+        try {
+            console.log(this.LOG_NAME + JSON.stringify(user));
+
+            const allChat = Object.values(this.chats);
+
+            const myChatList = allChat.filter(c => c.member.filter(m => m.username === user.username).length === 1);
+            const mapMyChatList = myChatList.map(c => ({ name: c.name, memberCount: c.member.length }));
+
+            // console.log(mapMyChatList);
+            return mapMyChatList;
+        } catch (error: any) {
+            throw error;
+        }
+    }
 
     public async createChat(user: Member, newChat: NewChat): Promise<ChatResponse> {
         try {
@@ -75,16 +91,17 @@ export class ChatService {
         }
     }
 
-    public async leaveChat(entity: any): Promise<void> {
+    public async leaveChat(user: Member, chatName: string): Promise<void> {
         try {
-            console.log(this.LOG_NAME + JSON.stringify(entity));
+            console.log(this.LOG_NAME + JSON.stringify(chatName));
 
-            // find by username
-            // username collision
-            // const userId
-            // const chatId
-            
-            // delete 
+            const result = this.chats[chatName];
+            if (!result)
+                throw { message: "No chat found" };
+
+            result.member = result.member.filter(m => m.username !== user.username);
+            console.log(result.member);
+            console.log(this.chats[chatName].member);
 
         } catch (error: any) {
             throw error;
