@@ -16,27 +16,6 @@ const startServer = async () => {
     io.on("connection", (socket) => {
         console.log("connected!!!")
 
-        socket.on("openRoom", (roomName) => {
-            safeJoin(roomName);
-        });
-
-        socket.on("closeRoom", (roomName) => {
-            socket.leave(roomName);
-        });
-
-        socket.on("joinRoom", (roomName) => {
-            io.to(roomName).emit('roomJoined', roomName);
-        });
-
-        socket.on("leaveRoom", (roomName) => {
-            io.to(roomName).emit('roomLeft', roomName);
-        });
-
-        socket.on("sendMessage", (message) => {
-            io.emit('message', message);
-            console.log('click');
-        });
-
         let previousId: string;
 
         const safeJoin = (currentId: string) => {
@@ -45,6 +24,28 @@ const startServer = async () => {
             console.log(`Socket ${socket.id} joined room ${currentId}`);
             previousId = currentId;
         };
+
+        socket.on("openChannel", (roomName) => {
+            safeJoin(roomName);
+        });
+
+        socket.on("closeChannel", (roomName) => {
+            socket.leave(roomName);
+        });
+
+        socket.on("joinChannel", (roomName) => {
+            socket.emit('peerJoined', roomName);
+        });
+
+        socket.on("leaveChannel", (roomName) => {
+            socket.emit('peerLeft', roomName);
+            socket.leave(roomName);
+        });
+
+        socket.on("sendMessage", (message) => {
+            socket.emit('messageReceived', message);
+            socket.to(message.chatName).emit('messageReceived', message);
+        });
 
         socket.on("getDoc", docId => {
             safeJoin(docId);

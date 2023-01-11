@@ -15,7 +15,7 @@ export class AuthorizationService {
         private authRepo: AuthorizationRepository = new AuthorizationRepository(),
     ) {}
 
-    public async createNewUser(newUser: NewUser): Promise<any> {
+    public async createNewUser(newUser: NewUser): Promise<string> {
         try {
             console.log(this.LOG_NAME + JSON.stringify(newUser));
 
@@ -37,20 +37,21 @@ export class AuthorizationService {
 
             console.log(this.users);
 
+            return generateToken(userData);
             //return user data
         } catch (err: any) {
             throw err;
         }
     }
 
-    public async login(userLogin: UserLogin): Promise<string> {
+    public async login(userLogin: NewUser): Promise<string> {
         try {
             console.log(this.LOG_NAME + JSON.stringify(userLogin));
 
             // find by username
             const result = this.users[userLogin.username];
             if (!result)
-                throw new Error("No user found");
+                return await this.createNewUser(userLogin);
 
             const password = result.password;
 

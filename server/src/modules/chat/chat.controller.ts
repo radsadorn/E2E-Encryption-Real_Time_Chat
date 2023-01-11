@@ -67,9 +67,11 @@ export class ChatController {
 
             const chatName = req.query.chatName as string;
             const user: Member = getUser(req.headers.authorization!);
+
+            const chatData = await this.chatService.getChatData(chatName);
             const chatMessages = await this.chatService.getMessageByChatName(user, chatName);
 
-            res.json(responseUtil.getResponseSuccessWithResult({ chatMessages }));
+            res.json(responseUtil.getResponseSuccessWithResult({ chatData, chatMessages }));
         } catch (error: any) {
             this.getErrorResponse(error, res);
         }

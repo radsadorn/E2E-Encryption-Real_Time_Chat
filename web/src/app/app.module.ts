@@ -5,13 +5,16 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ChatComponent } from './component/Document/chat.component';
+import { DocumentComponent } from './component/Document/document.component';
 import { HomeComponent } from './component/home/home.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from './modules/shared/shared.module';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { ChatDialogComponent } from './component/dialog/dialog.component';
+import { ChatComponent } from './component/chat/chat.component';
+import { LoginComponent } from './component/login/login.component';
 
 const config: SocketIoConfig = { 
   url: environment.SERVER_URL, 
@@ -24,8 +27,10 @@ const config: SocketIoConfig = {
   declarations: [
     AppComponent,
     HomeComponent,
-    ChatComponent,
+    DocumentComponent,
     ChatDialogComponent,
+    ChatComponent,
+    LoginComponent,
   ],
   imports: [
     CommonModule,
@@ -36,6 +41,7 @@ const config: SocketIoConfig = {
     BrowserAnimationsModule,
     SharedModule,
     MatDialogModule,
+    MatToolbarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

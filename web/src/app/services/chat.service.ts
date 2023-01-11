@@ -18,8 +18,9 @@ export class ChatService {
 
     private apiUrl = environment.SERVER_URL;
 
-    messages = this.socket.fromEvent<any[]>('messages');
-    newMessage = this.socket.fromEvent<any>('message')
+    newMessage = this.socket.fromEvent<any>(Event.MESSAGE_RECEIVED);
+    peerJoined = this.socket.fromEvent<any>(Event.PEER_JOINED);
+    peerLeft = this.socket.fromEvent<any>(Event.PEER_LEFT);
 
     // public messages!: Subject<any>;
     // private channel!: Room;
@@ -34,11 +35,19 @@ export class ChatService {
 
     authorizationHeaders(): HttpHeaders {
       return new HttpHeaders()
-          .set('Authorization', 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhZHNhZG9ybiIsInB1YmxpY0tleUJhc2U2NCI6ImhoZ2hmZ2hoIiwicHJpdmF0ZUtleUJhc2U2NCI6IkhKS0xKamtzbGtzIiwiaWF0IjoxNjY5Mjc4MjA3LCJleHAiOjE2NjkzMjE0MDd9.h0PFdyleIb_46NjNoyzkZ9N7ptOEfXXs7MfMY1qkCdVQzGG-B143WdO60O-Igtkr8mhcZjwhfUNfeXApJw3wew');
+          .set('Authorization', this.authService.getCurrentSession().token);
     }
 
-    sendMessage(user: User) {
-      this.socket.emit('sendMessage', user);
+    openRoom(roomName: string): void {
+      this.socket.emit('openChannel', roomName);
+    }
+
+    closeRoom(roomName: string): void {
+      this.socket.emit('closeChannel', roomName);
+    };
+
+    sendMessage(message: any) {
+      this.socket.emit('sendMessage', message);
       // this.userService.createNewUser
     }
 
@@ -48,7 +57,7 @@ export class ChatService {
 
     getMyChat(): any {
       const headers = this.authorizationHeaders();
-      return this.http.get<any>(this.apiUrl + 'chat', { headers: headers } ).pipe(
+      return this.http.get<any>(this.apiUrl + 'chat', { headers: headers} ).pipe(
         map(r => r.result )
       );
     }
@@ -74,7 +83,7 @@ export class ChatService {
       );
     }
 
-    sendNewMessage(newMessage: any): any {
+    sendChatMessage(newMessage: any): any {
       const headers = this.authorizationHeaders();
         return this.http.post<any>(this.apiUrl + 'chat/message', newMessage, { headers: headers } ).pipe(
           map(r => r.result )

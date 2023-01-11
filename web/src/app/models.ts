@@ -1,9 +1,11 @@
 // Actions you can take on the App
 export enum Action {
     JOIN = 'joinChannel',
-    RENAME = 'renameChannel',
     LEFT = 'leaveChannel',
-    SENDMESSAGE = 'sendMessage'
+    SENDMESSAGE = 'sendMessage',
+    OPENCHAT = 'openChannel',
+    CLOSECHAT = 'closeChannel',
+
 }
 
 // Socket events
@@ -21,13 +23,12 @@ export class User {
     // avatar: string;
   
     constructor(
-      public name: string,
-      public id: number,
+      public username: string,
       public publicKey?: CryptoKey,
       public base64EncodedPublicKey?: string,
       public base64EncodedPrivateKey?: string
       ) {
-        this.name = name;
+        this.username = username;
         // this.avatar = `../../../assets/avatar/man${this.id % 4}.png`;
     }
 }

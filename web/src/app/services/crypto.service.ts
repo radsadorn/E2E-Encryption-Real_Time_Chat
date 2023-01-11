@@ -11,27 +11,27 @@ const RSA_PV_KEY_FORMAT = 'pkcs8';
 })  
 export class CryptoService {
 
-    private encryptionKeys!: CryptoKeyPair;
-    private base64PublicKey!: string;
-    private base64PrivateKey!: string;
+    // private encryptionKeys!: CryptoKeyPair;
+    // private base64PublicKey!: string;
+    // private base64PrivateKey!: string;
 
     constructor() {
-        this.generateEncryptionKeys();
+        // this.generateEncryptionKeys();
     }
 
-    getBase64PublicKey(): string {
-        return this.base64PublicKey;
-    }
+    // getBase64PublicKey(): string {
+    //     return this.base64PublicKey;
+    // }
 
-    getBase64PrivateKey(): string {
-        return this.base64PrivateKey;
-    }
+    // getBase64PrivateKey(): string {
+    //     return this.base64PrivateKey;
+    // }
 
-    getPublicKey(): CryptoKey {
-        return this.encryptionKeys.publicKey;
-    }
+    // getPublicKey(): CryptoKey {
+    //     return this.encryptionKeys.publicKey;
+    // }
 
-    decodeBase64PublicKey(base64Encoded: string): PromiseLike<CryptoKey> {
+    async decodeBase64PublicKey(base64Encoded: string): Promise<CryptoKey> {
         const params = {
             name: RSA_ALGORITHM_NAME,
             hash: 'SHA-256'
@@ -45,7 +45,7 @@ export class CryptoService {
         );
     }
 
-    decodeBase64PrivateKey(base64Encoded: string): PromiseLike<CryptoKey> {
+    async decodeBase64PrivateKey(base64Encoded: string): Promise<CryptoKey> {
         const params = {
             name: RSA_ALGORITHM_NAME,
             hash: 'SHA-256'
@@ -66,7 +66,7 @@ export class CryptoService {
      * @param publicKey the key used to encrypt the text.
      * @returns The base64 encoded string representing the encrypted text.
      */
-    encrypt(text: string, publicKey: CryptoKey): PromiseLike<string> {
+    async encrypt(text: string, publicKey: CryptoKey): Promise<string> {
         const data = new TextEncoder().encode(text);
         return window.crypto.subtle.encrypt(
             { name: RSA_ALGORITHM_NAME },
@@ -83,20 +83,22 @@ export class CryptoService {
      * @param base64Encoded the base64 string to decrypt.
      * @returns the decrypted text.
      */
-    decrypt(base64Encoded: string): PromiseLike<string> {
+    async decrypt(base64Encoded: string, privateKeyBase64: string): Promise<string> {
         const params = {
             name: RSA_ALGORITHM_NAME
         };
 
+        const privateKey = await this.decodeBase64PrivateKey(privateKeyBase64);
+
         const bytes = toByteArray(base64Encoded);
-        return window.crypto.subtle.decrypt(params, this.encryptionKeys.privateKey, bytes)
+        return window.crypto.subtle.decrypt(params, privateKey, bytes)
             .then( (decrypted) => {
             const text = new TextDecoder('utf-8').decode(decrypted);
             return text;
             });
     }
 
-    private async generateEncryptionKeys() {
+    private async generateEncryptionKeys(): Promise<string[]>{
         const params = {
             name: RSA_ALGORITHM_NAME,
             modulusLength: 2048,
@@ -104,29 +106,31 @@ export class CryptoService {
             hash: 'SHA-256',
         };
 
-        this.encryptionKeys = await window
+        const encryptionKeys = await window
             .crypto
             .subtle
             .generateKey(params, true, ['encrypt', 'decrypt']);
-        this.onEncryptionKeysGenerated();
+        return await this.onEncryptionKeysGenerated(encryptionKeys);
     }
 
     /**
      * Stores base64 encoded public key.
      */
-    private async onEncryptionKeysGenerated() {
+    private async onEncryptionKeysGenerated(encryptionKeys: CryptoKeyPair): Promise<string[]> {
         const exportedPublicBytes = await window
             .crypto
             .subtle
-            .exportKey(RSA_PB_KEY_FORMAT, this.encryptionKeys.publicKey);
+            .exportKey(RSA_PB_KEY_FORMAT, encryptionKeys.publicKey);
 
         const exportedPrivateBytes = await window
             .crypto
             .subtle
-            .exportKey(RSA_PV_KEY_FORMAT, this.encryptionKeys.privateKey);
+            .exportKey(RSA_PV_KEY_FORMAT, encryptionKeys.privateKey);
 
-        this.base64PublicKey = fromByteArray(new Uint8Array(exportedPublicBytes));
-        this.base64PrivateKey = fromByteArray(new Uint8Array(exportedPrivateBytes));
+        const base64PublicKey = fromByteArray(new Uint8Array(exportedPublicBytes));
+        const base64PrivateKey = fromByteArray(new Uint8Array(exportedPrivateBytes));
+
+        return [base64PublicKey, base64PrivateKey]
     }
 
     public async sha256(message: string) {

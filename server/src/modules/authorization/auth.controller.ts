@@ -36,9 +36,19 @@ export class AuthorizationController {
             console.log(this.LOG_NAME + 'User Login...');
 
             const token = await this.authService.login(req.body);
-
+            console.log(token);
             res.header('Authorization', token);
             res.json(ResponseUtil.getResponseSuccessWithResult({ token }));
+        } catch (err: any) {
+            this.getErrorResponse(err, res);
+        }
+    }
+
+    public async userLogout(req: Request, res: Response): Promise<void> {
+        try {
+            console.log(this.LOG_NAME + 'User Logout...');
+
+            res.json(ResponseUtil.getResponseSuccess());
         } catch (err: any) {
             this.getErrorResponse(err, res);
         }

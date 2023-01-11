@@ -6,5 +6,6 @@ export const authRouter = Router();
 const authController = new AuthorizationController();
 
 authRouter.get('/', doRequest((req, res) => authController.authorization(req, res)));
+authRouter.get('/logout', doRequest((req, res) => authController.userLogout(req, res)));
 authRouter.post('/signup', doRequest((req, res) => authController.createNewUser(req, res)));
 authRouter.post('/sign-in', doRequest((req, res) => authController.userLogin(req, res)));

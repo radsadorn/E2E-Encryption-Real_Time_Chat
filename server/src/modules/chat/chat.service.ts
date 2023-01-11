@@ -13,7 +13,24 @@ export class ChatService {
 
     constructor () {}
 
-    public async getAllChat(user: Member ): Promise<Chat[]> {
+    public async getChatData(chatName: string): Promise<ChatResponse> {
+        try {
+            console.log(this.LOG_NAME + JSON.stringify(chatName));
+
+            const chat = this.chats[chatName];
+            const chatData: ChatResponse = {
+                name: chat.name,
+                member: chat.member,
+            }
+
+            console.log(JSON.stringify(chatData));
+            return chatData;
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    public async getAllChat(user: Member): Promise<Chat[]> {
         try {
             console.log(this.LOG_NAME + JSON.stringify(user));
 
@@ -114,9 +131,11 @@ export class ChatService {
             console.log(this.LOG_NAME + JSON.stringify(chatName));
 
             const allMessage = this.messages[chatName];
-            const myMessages = allMessage.filter(m => m.to === user.username);
 
-            console.log(myMessages);
+            let myMessages:Message[] = [];
+            if (allMessage)
+                myMessages = allMessage.filter(m => m.to === user.username);
+
             return myMessages;
         } catch (error: any) {
             throw error;
@@ -131,16 +150,12 @@ export class ChatService {
             const { chatName, to, content, type } = message;
             const newMessage: Message = { from, to, content, type };
 
-            console.log(newMessage);
-
             // First message
             const result = this.messages[chatName];
             if (!result) this.messages[chatName] = [];
 
             // Add new message
             this.messages[chatName].push(newMessage);
-
-            console.log(this.messages[chatName]);
 
         } catch(error: any) {
             throw error;
