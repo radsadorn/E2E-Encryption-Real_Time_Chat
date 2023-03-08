@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { Subject, BehaviorSubject, Observable} from 'rxjs';
+import { Subject, BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { Room, User, Event, Action} from '../models';
+import { Room, User, Event, Action } from '../models';
 import { CryptoService } from './crypto.service';
 import { WebSocketService } from './webSocket.service';
 
@@ -15,195 +15,206 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
   providedIn: 'root',
 })
 export class ChatService {
+  private apiUrl = environment.SERVER_URL;
 
-    private apiUrl = environment.SERVER_URL;
+  newMessage = this.socket.fromEvent<any>(Event.MESSAGE_RECEIVED);
+  peerJoined = this.socket.fromEvent<any>(Event.PEER_JOINED);
+  peerLeft = this.socket.fromEvent<any>(Event.PEER_LEFT);
 
-    newMessage = this.socket.fromEvent<any>(Event.MESSAGE_RECEIVED);
-    peerJoined = this.socket.fromEvent<any>(Event.PEER_JOINED);
-    peerLeft = this.socket.fromEvent<any>(Event.PEER_LEFT);
+  // public messages!: Subject<any>;
+  // private channel!: Room;
+  // private user!: User;
+  // private peers: User[] = [];
 
-    // public messages!: Subject<any>;
-    // private channel!: Room;
-    // private user!: User;
-    // private peers: User[] = [];
+  constructor(
+    private socket: Socket,
+    private authService: AuthService,
+    private http: HttpClient
+  ) {}
 
-    constructor(
-      private socket: Socket,
-      private authService: AuthService,
-      private http: HttpClient,
-    ) {}
+  authorizationHeaders(): HttpHeaders {
+    return new HttpHeaders().set(
+      'Authorization',
+      this.authService.getCurrentSession().token
+    );
+  }
 
-    authorizationHeaders(): HttpHeaders {
-      return new HttpHeaders()
-          .set('Authorization', this.authService.getCurrentSession().token);
-    }
+  openRoom(roomName: string): void {
+    this.socket.emit('openChannel', roomName);
+  }
 
-    openRoom(roomName: string): void {
-      this.socket.emit('openChannel', roomName);
-    }
+  closeRoom(roomName: string): void {
+    this.socket.emit('closeChannel', roomName);
+  }
 
-    closeRoom(roomName: string): void {
-      this.socket.emit('closeChannel', roomName);
-    };
+  sendMessage(message: any) {
+    this.socket.emit('sendMessage', message);
+    // this.userService.createNewUser
+  }
 
-    sendMessage(message: any) {
-      this.socket.emit('sendMessage', message);
-      // this.userService.createNewUser
-    }
+  getMessage() {
+    return this.socket.fromEvent('message').pipe(map((data: any) => data.msg));
+  }
 
-    getMessage() {
-      return this.socket.fromEvent('message').pipe(map((data: any) => data.msg));
-    }
+  getMyChat(): any {
+    const headers = this.authorizationHeaders();
+    return this.http
+      .get<any>(this.apiUrl + 'chat', { headers: headers })
+      .pipe(map((r) => r.result));
+  }
 
-    getMyChat(): any {
-      const headers = this.authorizationHeaders();
-      return this.http.get<any>(this.apiUrl + 'chat', { headers: headers} ).pipe(
-        map(r => r.result )
-      );
-    }
+  createNewChat(name: string, password: string): any {
+    const headers = this.authorizationHeaders();
+    return this.http
+      .post<any>(
+        this.apiUrl + 'chat/create',
+        { name, password },
+        { headers: headers }
+      )
+      .pipe(map((r) => r.result));
+  }
 
-    createNewChat(name: string, password: string): any {
-        const headers = this.authorizationHeaders();
-        return this.http.post<any>(this.apiUrl + 'chat/create', { name, password }, { headers: headers } ).pipe(
-          map(r => r.result )
-        );
-    }
+  joinNewChat(name: string, password: string): any {
+    const headers = this.authorizationHeaders();
+    return this.http
+      .put<any>(
+        this.apiUrl + 'chat/join',
+        { name, password },
+        { headers: headers }
+      )
+      .pipe(map((r) => r.result));
+  }
 
-    joinNewChat(name: string, password: string): any {
-      const headers = this.authorizationHeaders();
-      return this.http.put<any>(this.apiUrl + 'chat/join', { name, password }, { headers: headers } ).pipe(
-        map(r => r.result )
-      );
-    }
+  leaveRoom(chatName: string): any {
+    const headers = this.authorizationHeaders();
+    return this.http
+      .put<any>(this.apiUrl + 'chat/leave', { chatName }, { headers: headers })
+      .pipe(map((r) => r.result));
+  }
 
-    leaveChat(name: string): any {
-      const headers = this.authorizationHeaders();
-      return this.http.put<any>(this.apiUrl + 'chat/leave', { name }, { headers: headers } ).pipe(
-        map(r => r.result )
-      );
-    }
+  sendChatMessage(newMessage: any): any {
+    const headers = this.authorizationHeaders();
+    return this.http
+      .post<any>(this.apiUrl + 'chat/message', newMessage, { headers: headers })
+      .pipe(map((r) => r.result));
+  }
 
-    sendChatMessage(newMessage: any): any {
-      const headers = this.authorizationHeaders();
-        return this.http.post<any>(this.apiUrl + 'chat/message', newMessage, { headers: headers } ).pipe(
-          map(r => r.result )
-        );
-    }
+  getChatMessage(name: string): any {
+    const params = new HttpParams().set('chatName', name);
 
-    getChatMessage(name: string): any {
-      const params = new HttpParams()
-        .set('chatName', name);
+    const headers = this.authorizationHeaders();
+    return this.http
+      .get<any>(this.apiUrl + 'chat/message', {
+        headers: headers,
+        params: params,
+      })
+      .pipe(map((r) => r.result));
+  }
 
-      const headers = this.authorizationHeaders();
-      return this.http.get<any>(this.apiUrl + 'chat/message', { headers: headers, params: params } ).pipe(
-        map(r => r.result )
-      );
-    }
+  // constructor(private wsService: WebSocketService,
+  //             private cryptoService: CryptoService) { }
 
-    // constructor(private wsService: WebSocketService,
-    //             private cryptoService: CryptoService) { }
+  // public connect() {
+  //   console.log(environment.SERVER_URL);
+  //   this.messages = <Subject<any>>this.wsService
+  //     .connect(environment.SERVER_URL)
+  //     .pipe(map( response => JSON.parse(response.data) ) );
+  // }
 
-    // public connect() {
-    //   console.log(environment.SERVER_URL);
-    //   this.messages = <Subject<any>>this.wsService
-    //     .connect(environment.SERVER_URL)
-    //     .pipe(map( response => JSON.parse(response.data) ) );
-    // }
+  // public setRoom(channel: Room) {
+  //   this.channel = channel;
+  // }
 
-    // public setRoom(channel: Room) {
-    //   this.channel = channel;
-    // }
+  // public getRoom() {
+  //   return this.channel;
+  // }
 
-    // public getRoom() {
-    //   return this.channel;
-    // }
+  // public setInitialPeers(peers: User[]) {
+  //   this.peers = peers;
+  // }
 
-    // public setInitialPeers(peers: User[]) {
-    //   this.peers = peers;
-    // }
+  // public getInitialPeers() {
+  //   return this.peers;
+  // }
 
-    // public getInitialPeers() {
-    //   return this.peers;
-    // }
+  // public setUser(user: User) {
+  //   this.user = user;
+  // }
 
-    // public setUser(user: User) {
-    //   this.user = user;
-    // }
+  // public getUser() {
+  //   return this.user;
+  // }
 
-    // public getUser() {
-    //   return this.user;
-    // }
+  // public close() {
+  //   this.wsService.close();
+  // }
 
-    // public close() {
-    //   this.wsService.close();
-    // }
+  // public send(message: any) {
+  //   this.messages.next(message);
+  // }
 
-    // public send(message: any) {
-    //   this.messages.next(message);
-    // }
+  // public sendBrowserNotification (user: string, type: string) {
 
-    // public sendBrowserNotification (user: string, type: string) {
+  //   let notificationMsj!: string;
 
-    //   let notificationMsj!: string;
+  //   if (document.hasFocus()) {
+  //     return;
+  //   }
 
-    //   if (document.hasFocus()) {
-    //     return;
-    //   }
+  //   switch (type) {
+  //     case Event.MESSAGE_RECEIVED : {
+  //       notificationMsj = `New message from ${user}`;
+  //       break;
+  //     }
+  //     case Event.PEER_JOINED: {
+  //       notificationMsj = `${user} joined the channel`;
+  //       break;
+  //     }
+  //     case Event.PEER_LEFT: {
+  //       notificationMsj = `${user} left the channel`;
+  //       break;
+  //     }
+  //   }
 
-    //   switch (type) {
-    //     case Event.MESSAGE_RECEIVED : {
-    //       notificationMsj = `New message from ${user}`;
-    //       break;
-    //     }
-    //     case Event.PEER_JOINED: {
-    //       notificationMsj = `${user} joined the channel`;
-    //       break;
-    //     }
-    //     case Event.PEER_LEFT: {
-    //       notificationMsj = `${user} left the channel`;
-    //       break;
-    //     }
-    //   }
+  //   if (!('Notification' in window)) {
+  //     return;
+  //   } else if (Notification.permission === 'granted') {
+  //     const _ = new Notification(notificationMsj);
+  //   }
+  // }
 
-    //   if (!('Notification' in window)) {
-    //     return;
-    //   } else if (Notification.permission === 'granted') {
-    //     const _ = new Notification(notificationMsj);
-    //   }
-    // }
+  // public JoinRoom(user: User,  room: Room): void {
+  //  const message = {
+  //     type : Action.JOIN,
+  //     data : {
+  //       channel : room.name,
+  //       secret : room.sha256Secret,
+  //       name : {
+  //         name : user.name,
+  //         key: user.base64EncodedPublicKey
+  //       }
+  //     }
+  //   };
 
-    // public JoinRoom(user: User,  room: Room): void {
-    //  const message = {
-    //     type : Action.JOIN,
-    //     data : {
-    //       channel : room.name,
-    //       secret : room.sha256Secret,
-    //       name : {
-    //         name : user.name,
-    //         key: user.base64EncodedPublicKey
-    //       }
-    //     }
-    //   };
+  //   this.send(message);
+  // }
 
-    //   this.send(message);
-    // }
+  // public sendChatMessage(messageContent: string) {
+  //   let message: any;
 
-    // public sendChatMessage(messageContent: string) {
-    //   let message: any;
-
-    //   this.peers.forEach(peer => {
-    //     this.cryptoService
-    //       .encrypt(messageContent, peer.publicKey!)
-    //       .then(encryptedMessage => {
-    //         message = {
-    //           type: Action.SENDMESSAGE,
-    //           data: {
-    //             to: peer.name,
-    //             message: encryptedMessage
-    //           }
-    //         };
-    //         this.send(message);
-    //       });
-    //   });
-    // }
+  //   this.peers.forEach(peer => {
+  //     this.cryptoService
+  //       .encrypt(messageContent, peer.publicKey!)
+  //       .then(encryptedMessage => {
+  //         message = {
+  //           type: Action.SENDMESSAGE,
+  //           data: {
+  //             to: peer.name,
+  //             message: encryptedMessage
+  //           }
+  //         };
+  //         this.send(message);
+  //       });
+  //   });
+  // }
 }
