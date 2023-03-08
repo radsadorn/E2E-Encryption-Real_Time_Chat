@@ -1,6 +1,6 @@
 [build]
   publish = "dist/e2e-real-time-chat"
-  command = "ng build --prod"
+  command = "ng build"
 [[redirects]]
   from = "/*"
   to = "/index.html"
