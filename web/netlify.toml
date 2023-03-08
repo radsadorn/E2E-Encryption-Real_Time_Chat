@@ -1,5 +1,5 @@
 [build]
-  publish = "dist/anglify"
+  publish = "dist/e2e-real-time-chat"
   command = "ng build --prod"
 [[redirects]]
   from = "/*"
