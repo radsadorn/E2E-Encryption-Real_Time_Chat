@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  SERVER_URL: 'http://localhost:8000/',
+  SERVER_URL: 'https://chat-api.radsdorn.studio/',
   SESSION_NAME: 'token',
 };
