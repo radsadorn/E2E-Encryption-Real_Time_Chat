@@ -1,4 +1,6 @@
-# E2eRealTimeChat
+# [E2eRealTimeChat](https://chat.radsdorn.studio)
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7d54ec2d-a353-4b56-9622-e67e7710a2e7/deploy-status)](https://app.netlify.com/sites/7chat/deploys)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.6.
 
